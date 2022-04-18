@@ -1,13 +1,15 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { useForm } from '../../hooks/useForm'
 import { startLoginEmailPassword, startGoogleLogin } from '../../actions/auth'
+import { removeError, setError } from '../../actions/ui'
 
 export const LoginScreen = () => {
 
   const dispatch = useDispatch();
+  const { msgError, loading } = useSelector(state => state.ui);
 
   const [ formValues, handleInputChange ] = useForm({
     email: 'dab@gmail.com',
@@ -19,8 +21,10 @@ export const LoginScreen = () => {
   const handleLogin = (e) => {
     
     e.preventDefault();
-  
-    console.log(email, password);
+
+    if (!isFormValid()) {
+      return;
+    }
 
     dispatch(startLoginEmailPassword(email, password));
   };
@@ -29,14 +33,26 @@ export const LoginScreen = () => {
     dispatch(startGoogleLogin());
   };
 
+  const isFormValid = () => {
+    if (email.trim().length === 0) {
+      dispatch(setError('Email is required'));
+      return false;
+    } else if (password.trim().length === 0) {
+      dispatch(setError('Password is required'));
+      return false;
+    }
+    dispatch(removeError());
+    return true;
+  };
 
   return (
-    <>
+    <div className='animate__animated animate__fadeIn animate__slow'>
       <h3 className='auth__title'>Login</h3>
       <form onSubmit={handleLogin}>
+      { msgError && <div className="auth__alert__error">{msgError}</div> }
         <input className='auth__input' type="email" placeholder='Email' name='email' autoComplete='off' value={email} onChange={ handleInputChange }/>
         <input className='auth__input' type="password" placeholder='Password' name='password' value={password} onChange={ handleInputChange } />
-        <button type='submit' className='btn btn__primary btn__block'>Login</button>
+        <button type='submit' className='btn btn__primary btn__block' disabled={ loading }>Login</button>
         <div className='auth__social__networks'>
           <p>Login with social networks</p>
           <div className="google-btn" onClick={ handleGoogleLogin }>
@@ -50,6 +66,6 @@ export const LoginScreen = () => {
         </div>
         <Link className='link' to='/auth/register'>Create new account</Link>
       </form>
-    </>
+    </div>
   )
 }

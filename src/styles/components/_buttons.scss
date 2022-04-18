@@ -25,6 +25,18 @@
     }
 }
 
+.btn__danger {
+    background-color: red;
+    border-radius: 2px;
+    transition: background-color .3s ease;
+    &:hover {
+        background-color: darken(red, 15);
+    }
+    &:disabled {
+        background-color: lighten(red, 15);
+    }
+}
+
 .btn__block {
     width: 100%;
 }
